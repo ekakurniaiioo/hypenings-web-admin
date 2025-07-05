@@ -37,8 +37,8 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'root' => '/Users/dickey/Documents/hypenings-uploads',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
@@ -66,8 +66,9 @@ return [
     |
     */
 
-    'links' => [
-        public_path('storage') => storage_path('app/public'),
-    ],
+'links' => [
+    public_path('storage') => '/Users/dickey/Documents/hypenings-uploads',
+],
+
 
 ];

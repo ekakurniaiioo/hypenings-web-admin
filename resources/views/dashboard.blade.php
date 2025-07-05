@@ -1,26 +1,102 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="mb-8">
-  <h2 class="text-2xl font-semibold text-gray-800">Dashboard Overview</h2>
-  <p class="text-gray-600">Welcome back! Here's what's happening with your store today.</p>
-</div>
+<div class="max-w-7xl mx-auto">
 
-<!-- Stats Cards -->
-<div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-  <!-- Total News -->
-  <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
-    <div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
+    <!-- Judul dan Tombol -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-semibold text-gray-800">Dashboard Overview</h2>
+        <p class="text-gray-600">Welcome back! Here's what's happening with your store today.</p>
     </div>
-    <div>
-      <p class="text-sm font-medium text-gray-600">Total News</p>
-      <p class="text-lg font-semibold text-gray-700">12</p>
-      <p class="text-xs text-green-600">+12% from last month</p>
-    </div>
-  </div>
-</div>
 
+    <div class="mb-6">
+        <a href="{{ url('/news')}}"
+           class="inline-block px-4 py-2 bg-yellow-300 text-black text-sm rounded-md shadow hover:bg-yellow-400">
+            News Management
+        </a>
+    </div>
+
+    <!-- Statistik -->
+    <div class="grid gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="flex items-center p-4 bg-white rounded-lg shadow">
+            <div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total News</p>
+                <p class="text-lg font-semibold text-gray-700">12</p>
+                <p class="text-xs text-green-600">+12% from last month</p>
+            </div>
+        </div>
+
+        <div class="flex items-center p-4 bg-white rounded-lg shadow">
+            <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m3-4a4 4 0 100-8 4 4 0 000 8z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Users</p>
+                <p class="text-lg font-semibold text-gray-700">8</p>
+                <p class="text-xs text-green-600">+1 user this week</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistik Kategori -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-600">Lifestyle</p>
+            <p class="text-xl font-semibold text-gray-800">5</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-600">Music</p>
+            <p class="text-xl font-semibold text-gray-800">4</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-600">Sport</p>
+            <p class="text-xl font-semibold text-gray-800">3</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-600">Knowledge</p>
+            <p class="text-xl font-semibold text-gray-800">3</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-600">Other</p>
+            <p class="text-xl font-semibold text-gray-800">3</p>
+        </div>
+    </div>
+
+    <!-- Berita Terbaru -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">📰 5 Berita Trending</h3>
+        <ul class="space-y-3">
+            <li>
+                <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
+                <p class="text-xs text-gray-500">03 Juli 2025</p>
+            </li>
+            <li>
+                <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
+                <p class="text-xs text-gray-500">02 Juli 2025</p>
+            </li>
+            <li>
+                <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
+                <p class="text-xs text-gray-500">01 Juli 2025</p>
+            </li>
+            <li>
+                <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
+                <p class="text-xs text-gray-500">30 Juni 2025</p>
+            </li>
+            <li>
+                <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
+                <p class="text-xs text-gray-500">28 Juni 2025</p>
+            </li>
+        </ul>
+    </div>
+
+</div>
 @endsection
