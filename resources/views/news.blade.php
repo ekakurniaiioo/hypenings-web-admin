@@ -11,6 +11,7 @@
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-2xl font-bold text-gray-800">News Management</h1>
         <a href="{{ route('news.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
+        <button onclick="document.getElementById('addNewsModal').classList.remove('hidden')" class="bg-yellow-300 text-black hover:bg-yellow-400 text-black px-4 py-2 rounded-md flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -64,6 +65,7 @@
     </div>
 </div>
 <div id="addNewsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+<<<<<<< HEAD
   <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-medium text-gray-900">Add New News</h3>
@@ -73,6 +75,49 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
+=======
+    <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Add New News</h3>
+            <button onclick="document.getElementById('addNewsModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-500">
+                <span class="sr-only">Close</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <form id="newsForm" class="space-y-4">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">News Title</label>
+                <input type="text" id="title" name="title" required 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+            </div>
+            
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea id="description" name="description" rows="4" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"></textarea>
+            </div>
+            
+            <div>
+                <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
+                <input type="file" id="image" name="image" accept="image/*"
+                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="document.getElementById('addNewsModal').classList.add('hidden')" 
+                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Cancel
+                </button>
+                <button type="submit" 
+                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-black bg-yellow-300 text-black hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Save News
+                </button>
+            </div>
+        </form>
+>>>>>>> b7ef9c05fc50c9f232b9a46a050043d0a209cc3b
     </div>
 
     <form id="newsForm" class="space-y-4">
