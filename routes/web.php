@@ -27,3 +27,5 @@ Route::resource('/article', ArticleController::class)->names([
     'destroy' => 'articles.destroy',
     'show' => 'articles.show',
 ]);
+
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');

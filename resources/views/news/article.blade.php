@@ -35,12 +35,12 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($articles as $item)
                             <tr>
-                                <td class="px-6 py-4">{{ $item->category_id }}</td>
+                                <td class="px-6 py-4">{{ $item->category->name ?? '-' }}</td>
                                 <td class="px-6 py-4">{{ $item->title }}</td>
                                 <td class="px-6 py-4 max-w-xs truncate text-gray-600">{{ $item->content }}</td>
                                 <td class="px-6 py-4">
                                     @if($item->image)
-            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}" 
+                                        <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}"
                                             class="w-45 h-40 object-cover rounded">
                                     @else
                                         <span class="text-gray-400 italic">No image</span>
@@ -90,9 +90,12 @@
                     <label for="category_id" class="block text-sm font-medium text-gray-700">Category</label>
                     <select name="category_id" required class="w-full border p-2 rounded">
                         <option value="">Select Category</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}">{{ ucfirst($category->name) }}</option>
+                        @foreach($categories as $category)
+                            <div class="bg-white p-4 rounded-lg shadow">
+                                <p class="text-sm text-gray-500">{{ $category->name }}</p>
+                            </div>
                         @endforeach
+
                     </select>
                 </div>
 
