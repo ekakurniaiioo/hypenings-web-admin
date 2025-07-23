@@ -51,43 +51,15 @@
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Content Metrics</h2>
         </div>
-        
-        @foreach($categories as $category)
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16">
-                <div class="bg-white p-4 w-24 h-32 rounded-lg shadow">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($categories as $category)
+                <a href="{{ route('article.index', ['category' => $category->id]) }}"
+                    class="block bg-white p-4 rounded-lg shadow text-center hover:bg-gray-50 transition">
                     <p class="text-sm text-gray-500">{{ $category->name }}</p>
                     <p class="text-3xl font-bold text-gray-800">{{ $category->articles_count }}</p>
-                </div>
+                </a>
             @endforeach
         </div>
-
-
-        <!-- Berita Terbaru -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">📰 5 Berita Trending</h3>
-            <ul class="space-y-3">
-                <li>
-                    <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
-                    <p class="text-xs text-gray-500">03 Juli 2025</p>
-                </li>
-                <li>
-                    <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
-                    <p class="text-xs text-gray-500">02 Juli 2025</p>
-                </li>
-                <li>
-                    <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
-                    <p class="text-xs text-gray-500">01 Juli 2025</p>
-                </li>
-                <li>
-                    <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
-                    <p class="text-xs text-gray-500">30 Juni 2025</p>
-                </li>
-                <li>
-                    <a href="#" class="text-blue-700 font-medium hover:underline">Judul Berita</a>
-                    <p class="text-xs text-gray-500">28 Juni 2025</p>
-                </li>
-            </ul>
-        </div>
-
     </div>
 @endsection
