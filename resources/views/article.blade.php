@@ -53,8 +53,8 @@
                                     {{-- Gambar utama: hanya tampil jika tidak ada slider --}}
                                     @if($item->image && (!$item->slider || !$item->slider->media->count()))
                                         <div class="w-[300px] h-[350px] rounded overflow-hidden mb-4">
-                                            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}"
-                                                class="w-full h-full object-cover rounded">
+                                            <img src="{{ asset($item->image) }}" alt="Gambar Artikel"
+                                            class="w-full h-full object-cover rounded">
                                         </div>
                                     @else
                                         <span class="text-gray-400 italic">No image</span>
@@ -203,10 +203,10 @@
                                 </label>
                                 <input type="file" id="slider_images" name="slider_images[]" multiple
                                     accept="image/*,video/*" class="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4
-                   file:rounded-lg file:border-0
-                   file:text-sm file:font-semibold
-                   file:bg-yellow-400 file:text-white
-                   hover:file:bg-yellow-500 transition">
+                       file:rounded-lg file:border-0
+                       file:text-sm file:font-semibold
+                       file:bg-yellow-400 file:text-white
+                       hover:file:bg-yellow-500 transition">
                             </div>
                         </div>
                     </div>

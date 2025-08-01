@@ -2,6 +2,12 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto">
+        
+    @if (session('success'))
+  <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+    <strong>Sukses!</strong> {{ session('success') }}
+  </div>
+@endif
 
         <!-- Judul dan Tombol -->
         <div class="mb-6">
@@ -54,7 +60,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($categories as $category)
-                <a href="{{ route('article.index', ['category' => $category->id]) }}"
+                <a href="{{ route('articles.index', ['category' => $category->id]) }}"
                     class="block bg-white p-4 rounded-lg shadow text-center hover:bg-gray-50 transition">
                     <p class="text-sm text-gray-500">{{ $category->name }}</p>
                     <p class="text-3xl font-bold text-gray-800">{{ $category->articles_count }}</p>

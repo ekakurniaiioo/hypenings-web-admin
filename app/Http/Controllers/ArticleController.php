@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
-use Illuminate\Support\Facades\DB;
 use App\Models\Slider;
-use App\Models\SliderMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -14,58 +12,64 @@ use Illuminate\Support\Facades\Log;
 class ArticleController extends Controller
 {
 
+    public function dashboard()
+    {
+        $categories = Category::all(); // ambil data kategori dari database
 
-public function store(Request $request)
-{
-    Log::info("MASUK STORE", $request->all());
-
-    $data = $request->validate([
-        'title' => 'required|string|max:255',
-        'slug' => 'nullable|string|max:255',
-        'content' => 'required',
-        'image' => 'required|image',
-        'published_at' => 'required|date',
-        'category_id' => 'required|exists:categories,id',
-        'is_trending' => 'nullable|boolean',
-        'is_topic' => 'nullable|boolean',
-        'is_featured_slider' => 'nullable|boolean',
-        'is_shorts' => 'nullable|boolean',
-    ]);
-
-    // Generate slug kalau belum dikasih
-    $data['slug'] = $request->input('slug') ?? Str::slug($request->title);
-
-    // Simpan image utama
-    if ($request->hasFile('image')) {
-        $filename = time() . '_' . $request->file('image')->getClientOriginalName();
-        $request->file('image')->storeAs('uploads', $filename);
-        $data['image'] = 'uploads/' . $filename;
+        return view('dashboard', compact('categories'));
     }
 
-    // Simpan artikel utama
-    $article = Article::create($data);
+    public function store(Request $request)
+    {
+        Log::info("MASUK STORE", $request->all());
 
-    // Proses slider jika ada
-    if ($request->hasFile('slider_images')) {
-        foreach ($request->file('slider_images') as $sliderImage) {
-            try {
-                $sliderFilename = time() . '_' . $sliderImage->getClientOriginalName();
-                $sliderImage->storeAs('uploads', $sliderFilename);
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
+            'content' => 'required',
+            'image' => 'required|image',
+            'published_at' => 'required|date',
+            'category_id' => 'required|exists:categories,id',
+            'is_trending' => 'nullable|boolean',
+            'is_topic' => 'nullable|boolean',
+            'is_featured_slider' => 'nullable|boolean',
+            'is_shorts' => 'nullable|boolean',
+        ]);
 
-                Slider::create([
-                    'article_id' => $article->id,
-                    'media_path' => 'uploads/' . $sliderFilename,
-                    'type' => $sliderImage->getClientMimeType(),
-                ]);
-            } catch (\Exception $e) {
-                Log::error("Gagal simpan slider: " . $e->getMessage());
-                // Boleh juga kasih flash message kalau mau: session()->flash('warning', 'Beberapa slider gagal disimpan.');
+        // Generate slug kalau belum dikasih
+        $data['slug'] = $request->input('slug') ?? Str::slug($request->title);
+
+        // Simpan image utama
+        if ($request->hasFile('image')) {
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->storeAs('public/uploads', $filename);
+            $data['image'] = 'storage/uploads/' . $filename;  // simpan path-nya untuk nanti dipakai di view
+        }
+
+        // Simpan artikel utama
+        $article = Article::create($data);
+
+        // Proses slider jika ada
+        if ($request->hasFile('slider_images')) {
+            foreach ($request->file('slider_images') as $sliderImage) {
+                try {
+                    $sliderFilename = time() . '_' . $sliderImage->getClientOriginalName();
+                    $sliderImage->storeAs('uploads', $sliderFilename);
+
+                    Slider::create([
+                        'article_id' => $article->id,
+                        'media_path' => 'uploads/' . $sliderFilename,
+                        'type' => $sliderImage->getClientMimeType(),
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error("Gagal simpan slider: " . $e->getMessage());
+                    // Boleh juga kasih flash message kalau mau: session()->flash('warning', 'Beberapa slider gagal disimpan.');
+                }
             }
         }
-    }
 
-    return redirect()->route('article.index')->with('success', 'Artikel berhasil disimpan.');
-}
+        return redirect()->route('article.index')->with('success', 'Artikel berhasil disimpan.');
+    }
 
     public function lifestyle()
     {
@@ -119,16 +123,10 @@ public function store(Request $request)
 
         $articles = $articlesQuery->get();
 
-        return view('news.article', compact('articles', 'categories'));
+        return view('article', compact('articles', 'categories'));
     }
 
-    public function edit($id)
-    {
-        $article = Article::findOrFail($id);
-        $categories = Category::all();
 
-        return view('news.edit', compact('article', 'categories'));
-    }
 
     public function show($id)
     {
@@ -136,4 +134,35 @@ public function store(Request $request)
 
         return view('articles.show', compact('article'));
     }
+    public function edit($id)
+    {
+        $article = Article::findOrFail($id);
+        $categories = Category::all();
+
+        return view('articles.edit', compact('article', 'categories'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required',
+        ]);
+
+        $article = Article::findOrFail($id);
+        $article->update($request->only(['title', 'content']));
+
+        return redirect()->route('articles.index', $article->id)
+            ->with('success', 'Berita berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $article = Article::findOrFail($id);
+        $article->delete();
+
+        return redirect()->route('articles.index')->with('success', 'Artikel berhasil dihapus.');
+    }
+
+
 }

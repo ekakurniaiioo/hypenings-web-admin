@@ -31,7 +31,10 @@
         <div>
           <button type="button" class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
             <span class="sr-only">Open user menu</span>
+            <a href="/login">
+
             <img class="w-8 h-8 rounded-full" src="{{ asset('image/hype.png') }}" alt="">
+            </a>
           </button>
         </div>
       </div>
