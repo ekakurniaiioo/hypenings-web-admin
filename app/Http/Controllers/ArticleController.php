@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\SliderMedia;
 use App\Models\Slider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Log;
 
 class ArticleController extends Controller
@@ -14,16 +17,14 @@ class ArticleController extends Controller
 
     public function dashboard()
     {
-        $categories = Category::all(); // ambil data kategori dari database
+        $categories = Category::all(); 
 
         return view('dashboard', compact('categories'));
     }
 
     public function store(Request $request)
     {
-        Log::info("MASUK STORE", $request->all());
-
-        $data = $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
             'content' => 'required',
@@ -34,66 +35,83 @@ class ArticleController extends Controller
             'is_topic' => 'nullable|boolean',
             'is_featured_slider' => 'nullable|boolean',
             'is_shorts' => 'nullable|boolean',
+            'slider_images.*' => 'nullable|mimes:jpg,jpeg,png,mp4,mov|max:20480',
+            'video_path' => 'nullable|mimes:mp4,mov|max:51200',
         ]);
 
-        // Generate slug kalau belum dikasih
-        $data['slug'] = $request->input('slug') ?? Str::slug($request->title);
+        $validated['slug'] = $request->input('slug') ?? Str::slug($request->title);
 
-        // Simpan image utama
-        if ($request->hasFile('image')) {
-            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
-            $request->file('image')->storeAs('public/uploads', $filename);
-            $data['image'] = 'storage/uploads/' . $filename;  // simpan path-nya untuk nanti dipakai di view
+        // Subfolder logika
+        $hasSlider = $request->hasFile('slider_images');
+
+        if ($request->boolean('is_shorts')) {
+            $subfolder = 'shorts/';
+        } elseif (($request->boolean('is_trending') || $request->boolean('is_topic') || $request->boolean('is_featured_slider')) && $hasSlider) {
+            $subfolder = 'articleWithSlider/';
+        } else {
+            $subfolder = 'articleWithoutSlider/';
         }
 
-        // Simpan artikel utama
-        $article = Article::create($data);
+        $destination = public_path('storage/uploads/' . $subfolder);
+        if (!file_exists($destination)) {
+            mkdir($destination, 0755, true);
+        }
 
-        // Proses slider jika ada
-        if ($request->hasFile('slider_images')) {
-            foreach ($request->file('slider_images') as $sliderImage) {
+        // Upload image utama
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $image->getClientOriginalExtension();
+            $image->move($destination, $imageName);
+            $validated['image'] = 'uploads/' . $subfolder . $imageName;
+        }
+
+        // Upload video utama jika ada
+        if ($request->hasFile('video_path')) {
+            $video = $request->file('video_path');
+            $videoName = time() . '_' . Str::slug(pathinfo($video->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $video->getClientOriginalExtension();
+            $video->move($destination, $videoName);
+            $validated['video_path'] = 'uploads/' . $subfolder . $videoName;
+        }
+
+        $validated['user_id'] = Auth::id(); // pastikan ada user_id kalau pakai Auth
+        $article = Article::create($validated);
+
+        // Notifikasi
+        if (Auth::check()) {
+            Notification::create([
+                'title' => 'Berita Baru Ditambahkan',
+                'message' => Auth::user()->name . ' menambahkan berita: ' . $validated['title'],
+                'created_by' => Auth::id(),
+            ]);
+        }
+
+        // Simpan slider jika ada
+        if ($hasSlider) {
+            $slider = Slider::create(['article_id' => $article->id]);
+
+            foreach ($request->file('slider_images') as $index => $file) {
                 try {
-                    $sliderFilename = time() . '_' . $sliderImage->getClientOriginalName();
-                    $sliderImage->storeAs('uploads', $sliderFilename);
+                    $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+                    $file->move($destination, $fileName);
 
-                    Slider::create([
-                        'article_id' => $article->id,
-                        'media_path' => 'uploads/' . $sliderFilename,
-                        'type' => $sliderImage->getClientMimeType(),
+                    SliderMedia::create([
+                        'slider_id' => $slider->id,
+                        'file_path' => 'uploads/' . $subfolder . $fileName,
+                        'media_type' => $file->getClientMimeType(),
+                        'order' => $index,
                     ]);
                 } catch (\Exception $e) {
-                    Log::error("Gagal simpan slider: " . $e->getMessage());
-                    // Boleh juga kasih flash message kalau mau: session()->flash('warning', 'Beberapa slider gagal disimpan.');
+                    Log::error("Slider media gagal disimpan: " . $e->getMessage());
                 }
             }
         }
 
-        return redirect()->route('article.index')->with('success', 'Artikel berhasil disimpan.');
+        return redirect()->route('articles.index')->with('success', 'Artikel berhasil disimpan.');
     }
 
-    public function lifestyle()
+    public function slider()
     {
-        return $this->loadCategoryPage('lifestyle');
-    }
-
-    public function music()
-    {
-        return $this->loadCategoryPage('music');
-    }
-
-    public function sport()
-    {
-        return $this->loadCategoryPage('sport');
-    }
-
-    public function knowledge()
-    {
-        return $this->loadCategoryPage('knowledge');
-    }
-
-    public function other()
-    {
-        return $this->loadCategoryPage('other');
+        return $this->hasOne(Slider::class);
     }
 
     private function loadCategoryPage(string $categoryName)
@@ -111,29 +129,50 @@ class ArticleController extends Controller
         return view("categories.$categoryName", compact('posts'));
     }
 
-    public function index(Request $request)
-    {
-        $categories = Category::all();
+  public function index(Request $request)
+{
+    $categories = Category::all();
 
-        $articlesQuery = Article::orderBy('id', 'asc');
+    // Mulai query dari awal
+    $articlesQuery = Article::query();
 
-        if ($request->has('category')) {
-            $articlesQuery->where('category_id', $request->category);
-        }
-
-        $articles = $articlesQuery->get();
-
-        return view('article', compact('articles', 'categories'));
+    // Filter kategori
+    if ($request->filled('category')) {
+        $articlesQuery->where('category_id', $request->category);
     }
 
+    // Filter pencarian
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $articlesQuery->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%{$search}%")
+              ->orWhere('content', 'like', "%{$search}%");
+        });
+    }
+
+    // Urutkan dari tanggal paling awal
+    $articles = $articlesQuery
+        ->orderBy('published_at', 'desc')
+        ->paginate(150);
+
+    return view('article', compact('articles', 'categories'));
+}
 
 
     public function show($id)
     {
         $article = Article::findOrFail($id);
 
+        $sessionKey = 'article_viewed_' . $article->id;
+
+        if (!session()->has($sessionKey)) {
+            $article->increment('views');
+            session()->put($sessionKey, true);
+        }
+
         return view('articles.show', compact('article'));
     }
+
     public function edit($id)
     {
         $article = Article::findOrFail($id);

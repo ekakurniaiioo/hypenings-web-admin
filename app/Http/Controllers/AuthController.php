@@ -30,7 +30,7 @@ class AuthController extends Controller
         }
 
         // Berhasil login
-session()->flash('success', 'Anjay Login.');
+session()->flash('success', 'Welcome To Admin.');
 
 
 

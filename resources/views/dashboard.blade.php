@@ -1,71 +1,118 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-7xl mx-auto">
-        
-    @if (session('success'))
-  <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-    <strong>Sukses!</strong> {{ session('success') }}
-  </div>
-@endif
+    <div class="p-6 bg-gray-100 min-h-screen">
 
-        <!-- Judul dan Tombol -->
-        <div class="mb-6">
-            <h2 class="text-2xl font-semibold text-gray-800">Dashboard Overview</h2>
-            <p class="text-gray-600">Welcome back! Here's what's happening with your store today.</p>
+        <div>
+            <h1 class="text-2xl font-bold text-black">
+                Ready to publish something new?
+            </h1>
+            <p class="text-gray-500 dark:text-gray-400 mb-12 mt-2">Everything you need to manage Hypenings, right here!</p>
+            <h1 class="text-2xl font-bold mb-6 text-gray-800">📊 Dashboard Admin</h1>
         </div>
 
-        <div class="mb-6">
-            <a href="{{ url('/news')}}"
-                class="inline-block px-4 py-2 bg-yellow-300 text-black text-sm rounded-md shadow hover:bg-yellow-400">
-                News Management
-            </a>
-        </div>
-
-        <!-- Statistik -->
-        <div class="grid gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="flex items-center p-4 bg-white rounded-lg shadow">
-                <div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3z"></path>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total News</p>
-                    <p class="text-lg font-semibold text-gray-700">12</p>
-                    <p class="text-xs text-green-600">+12% from last month</p>
-                </div>
+        {{-- Statistik Card --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+                <p class="text-gray-500">Total Berita</p>
+                <h2 class="text-3xl font-bold text-blue-600">{{ $totalNews }}</h2>
             </div>
-
-            <div class="flex items-center p-4 bg-white rounded-lg shadow">
-                <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m3-4a4 4 0 100-8 4 4 0 000 8z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total Users</p>
-                    <p class="text-lg font-semibold text-gray-700">8</p>
-                    <p class="text-xs text-green-600">+1 user this week</p>
-                </div>
+            <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+                <p class="text-gray-500">Total Shorts</p>
+                <h2 class="text-3xl font-bold text-green-600">{{ $totalShorts }}</h2>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+                <p class="text-gray-500">Total User</p>
+                <h2 class="text-3xl font-bold text-purple-600">{{ $totalUsers }}</h2>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+                <p class="text-gray-500">Total Kategori</p>
+                <h2 class="text-3xl font-bold text-yellow-600">{{ $totalCategories }}</h2>
             </div>
         </div>
 
-        <!-- Statistik Kategori -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Content Metrics</h2>
+        {{-- Grafik Artikel per Hari --}}
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
+            <h2 class="text-lg font-semibold mb-4 text-gray-700">Tren Artikel (30 Hari Terakhir)</h2>
+            <canvas id="articlesChart" height="100"></canvas>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($categories as $category)
-                <a href="{{ route('articles.index', ['category' => $category->id]) }}"
-                    class="block bg-white p-4 rounded-lg shadow text-center hover:bg-gray-50 transition">
-                    <p class="text-sm text-gray-500">{{ $category->name }}</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ $category->articles_count }}</p>
-                </a>
-            @endforeach
+        {{-- Recent Activity & Top Articles --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            {{-- Recent Activity --}}
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700">Aktivitas Terbaru</h2>
+                <ul class="space-y-4">
+                    @forelse ($recentActivities as $activity)
+                        <li class="border-b pb-2">
+                            <strong class="text-gray-800">{{ $activity->title }}</strong>
+                            <p class="text-sm text-gray-500">{{ $activity->message }}</p>
+                            <small class="text-gray-400">{{ $activity->created_at->diffForHumans() }}</small>
+                        </li>
+                    @empty
+                        <li class="text-gray-500">Belum ada aktivitas terbaru.</li>
+                    @endforelse
+                </ul>
+            </div>
+
+            {{-- Top Articles --}}
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700">Artikel Terpopuler Bulan Ini</h2>
+                <table class="min-w-full border">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-2 border text-left">Judul</th>
+                            <th class="px-4 py-2 border text-center">Views</th>
+                            <th class="px-4 py-2 border text-center">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($topArticles as $article)
+                            <tr>
+                                <td class="px-4 py-2 border">{{ $article->title }}</td>
+                                <td class="px-4 py-2 border text-center">{{ $article->views }}</td>
+                                <td class="px-4 py-2 border text-center">{{ $article->created_at->format('d M Y') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-2 border text-center text-gray-500">Tidak ada data.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
+
     </div>
+
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('articlesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($chartLabels),
+                datasets: [{
+                    label: 'Artikel per Hari',
+                    data: @json($chartData),
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
 @endsection

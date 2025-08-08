@@ -4,36 +4,31 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SettingsController;
 
+// ==================== AUTH ====================
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
-
-Route::resource('articles', ArticleController::class);
-
-Route::put('/articles/{id}', [ArticleController::class, 'update'])->name('articles.update');
-
-Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-Route::get('/login', function () {
-    return view('login');
-})->name('login');
-
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
-
-Route::get('/dashboard', [ArticleController::class, 'dashboard'])->middleware('auth');
-
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']); // <== ini WAJIB ADA
-
-
-
+// Login & Register
+Route::get('/login', fn() => view('login'))->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
+// ==================== PROTECTED ROUTES ====================
+Route::middleware('auth')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Articles
+    Route::resource('articles', ArticleController::class);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/settings/security', [SettingsController::class, 'updateSecurity'])->name('settings.security.update');
+    Route::post('/settings/appearance', [SettingsController::class, 'updateAppearance'])->name('settings.appearance.update');
+});

@@ -1,1 +1,38 @@
+/* Style tombol next/prev */
+.swiper-button-next,
+.swiper-button-prev {
+    color: white; /* warna ikon panah */
+    background: rgba(0,0,0,0.4); /* background transparan */
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: background 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background: rgba(0,0,0,0.6);
+}
+
+/* Posisi tombol agak masuk */
+.swiper-button-next {
+    right: 5px;
+}
+.swiper-button-prev {
+    left: 5px;
+}
+
+/* Style pagination bulat */
+.swiper-pagination-bullet {
+    background: white;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+    background: #FFD66B; /* kuning pastel Hypenings */
+    opacity: 1;
+}
 
