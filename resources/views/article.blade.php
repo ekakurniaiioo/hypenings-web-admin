@@ -34,6 +34,7 @@
                             <th class="px-6 py-3 text-left">Image</th>
                             <th class="px-6 py-3 text-left">Date</th>
                             <th class="px-6 py-3 text-left">Content For</th>
+                            <th class="px-6 py-3 text-left">User</th>
                             <th class="px-6 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -51,17 +52,17 @@
                                 <td class="px-6 py-4 text-xs text-gray-600 max-w-[220px] line-clamp-1">{{ $item->content }}</td>
                                 <td class="px-6 py-4">
                                     {{-- Gambar utama --}}
-                                    @if($item->image && (!$item->slider || !$item->slider->media->count()))
+                                    @if($item->image && (!$item->slider || !$item->slider->slidermedia->count()))
                                         <div class="w-[200px] h-[240px] rounded-lg overflow-hidden shadow">
                                             <img src="{{ asset('storage/' . $item->image) }}" class="w-full h-full object-cover">
                                         </div>
                                     @endif
 
                                     {{-- Slider --}}
-                                    @if ($item->slider && $item->slider->media->count())
+                                    @if ($item->slider && $item->slider->slidermedia->count())
                                         <div class="swiper mySwiper w-[200px] h-[240px] mt-2 rounded-lg overflow-hidden shadow">
                                             <div class="swiper-wrapper">
-                                                @foreach ($item->slider->media as $media)
+                                                @foreach ($item->slider->slidermedia as $media)
                                                     <div class="swiper-slide">
                                                         @if(Str::endsWith($media->file_path, ['.mp4', '.mov']))
                                                             <video controls class="w-full h-full object-cover rounded-lg">
@@ -102,19 +103,33 @@
                                         <span class="text-gray-400">-</span>
                                     @endforelse
                                 </td>
+                                <td class="px-6 py-4">
+                                    {{ $item->user->name ?? '-' }}
+                                </td>
                                 <td class="px-12 py-4 text-center">
-                                    <a href="{{ route('articles.edit', $item->id) }}" class="text-blue-600 hover:underline">
-                                        ✏️ Edit
-                                    </a>
-                                    <span class="text-gray-400 mx-1">|</span>
-                                    <form action="{{ route('articles.destroy', $item->id) }}" method="POST" class="inline-block"
-                                        onsubmit="return confirm('Are you sure?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">
-                                            🗑️ Delete
+                                    <div class="relative inline-block text-left">
+                                        <button type="button" onclick="toggleDropdown('dropdown-{{ $item->id }}')"
+                                            class="inline-flex justify-center items-center px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none">
+                                            ⋮
                                         </button>
-                                    </form>
+
+                                        <div id="dropdown-{{ $item->id }}"
+                                            class="hidden absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                                            <a href="{{ route('articles.edit', $item->id) }}"
+                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                                ✏️ Edit
+                                            </a>
+                                            <form action="{{ route('articles.destroy', $item->id) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                    🗑️ Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -130,22 +145,27 @@
 
     {{-- Modal Add Article --}}
     <div id="addArticleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium text-gray-900">Add New Article</h3>
-                <button onclick="document.getElementById('addArticleModal').classList.add('hidden')"
-                    class="text-gray-400 hover:text-gray-500">
+        <div class="relative top-20 mx-auto p-6 w-full max-w-2xl shadow-lg rounded-xl bg-white">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Add New Article</h3>
+                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600 transition">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
+            <!-- Form -->
             <form method="POST" action="{{ route('articles.store') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
+
+                <!-- Category -->
                 <div>
                     <label for="category_id" class="block text-sm font-medium text-gray-700">Category</label>
-                    <select name="category_id" required class="w-full border p-2 rounded">
+                    <select name="category_id" id="category_id" required
+                        class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-400 outline-none">
                         <option value="">Select Category</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -153,78 +173,93 @@
                     </select>
                 </div>
 
-
+                <!-- Title -->
                 <div>
                     <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-                    <input type="text" name="title" required class="w-full border p-2 rounded">
+                    <input type="text" name="title" id="title" required
+                        class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-400 outline-none">
                 </div>
 
+                <!-- Description -->
                 <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea name="content" rows="4" required class="w-full border p-2 rounded"></textarea>
+                    <label for="content" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="content" id="content" rows="4" required
+                        class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-400 outline-none"></textarea>
                 </div>
 
+                <!-- Image -->
                 <div>
                     <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
-                    <input type="file" name="image" accept="image/*" class="w-full border p-2 rounded">
+                    <input type="file" name="image" id="image" accept="image/*"
+                        class="w-full border border-gray-300 p-2 rounded-lg file:bg-yellow-400 file:text-white file:font-semibold hover:file:bg-yellow-500 transition">
                 </div>
 
+                <!-- Date -->
                 <div>
-                    <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-                    <input type="date" name="published_at" required class="w-full border p-2 rounded">
+                    <label for="published_at" class="block text-sm font-medium text-gray-700">Date</label>
+                    <input type="datetime-local" name="published_at" id="published_at" required
+                        class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-400 outline-none">
                 </div>
 
-                <div class="mt-6">
+                <!-- Flags -->
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Article Flags</label>
-                    <div class="grid grid-cols-2 gap-4 bg-white p-4 rounded-lg border shadow-sm">
+                    <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border">
+
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="is_trending" value="1" class="form-checkbox text-indigo-600">
-                            <span class="text-gray-700">Trending</span>
+                            <input type="checkbox" name="is_trending" value="1" class="text-yellow-500 rounded">
+                            <span>Trending</span>
                         </label>
 
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="is_topic" value="1" class="form-checkbox text-indigo-600">
-                            <span class="text-gray-700">Topik</span>
+                            <input type="checkbox" name="is_topic" value="1" class="text-yellow-500 rounded">
+                            <span>Topik</span>
                         </label>
 
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="is_featured_slider" value="1"
-                                class="form-checkbox text-indigo-600">
-                            <span class="text-gray-700">Featured Slider</span>
+                            <input type="checkbox" name="is_featured_slider" id="is_featured_slider" value="1"
+                                class="text-yellow-500 rounded">
+                            <span>Featured Slider</span>
                         </label>
 
                         <label class="flex items-center space-x-2">
                             <input type="checkbox" name="is_shorts" id="is_shorts" value="1"
-                                class="form-checkbox text-indigo-600">
-                            <span class="text-gray-700">Shorts</span>
+                                class="text-yellow-500 rounded">
+                            <span>Shorts</span>
                         </label>
 
-                        <div id="videoInput" class="mt-4 hidden">
-                            <label for="video_path" class="block text-sm font-medium text-gray-700">Upload Video
-                                (Shorts)</label>
-                            <input type="file" name="video_path" id="video_path" accept="video/*"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
-                        </div>
-
-                        <div id="slider-images-section" class="hidden mt-4">
-                            <label for="slider_images" class="block text-sm font-medium text-gray-700 mb-1">
-                                Upload Slider Images / Videos
+                        <!-- Shorts Video -->
+                        <div id="videoInput" class="col-span-2 hidden">
+                            <label for="video_path" class="block text-sm font-medium text-gray-700 mb-1">
+                                Upload Video (Shorts)
                             </label>
-                            <input type="file" id="slider_images" name="slider_images[]" multiple accept="image/*,video/*"
-                                class="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4
+                            <input type="file" name="video_path" id="video_path" accept="video/*" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg shadow-sm cursor-pointer
+                                                               file:mr-4 file:py-2 file:px-4
                                                                file:rounded-lg file:border-0
                                                                file:text-sm file:font-semibold
                                                                file:bg-yellow-400 file:text-white
                                                                hover:file:bg-yellow-500 transition">
                         </div>
+
+                        <!-- Slider Images/Videos -->
+                        <div id="slider-images-section" class="col-span-2 hidden">
+                            <label for="slider_images" class="block text-sm font-medium text-gray-700 mb-1">Upload Slider
+                                Images / Videos</label>
+                            <input type="file" id="slider_images" name="slider_images[]" multiple accept="image/*,video/*"
+                                class="block w-full text-sm border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
+                                                                  file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-white
+                                                                  hover:file:bg-yellow-500 transition">
+                        </div>
+
                     </div>
                 </div>
 
+                <!-- Actions -->
                 <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="document.getElementById('addArticleModal').classList.add('hidden')"
-                        class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+                    <button type="button" onclick="toggleModal(false)"
+                        class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Cancel</button>
                     <button type="submit"
-                        class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded">Save</button>
+                        class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg transition">Save</button>
                 </div>
             </form>
         </div>
@@ -237,6 +272,28 @@
     </style>
 
     <script>
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            dropdown.classList.toggle("hidden");
+        }
+
+        window.addEventListener("click", function (e) {
+            document.querySelectorAll("[id^='dropdown-']").forEach(el => {
+                if (!el.contains(e.target) && !e.target.closest("button")) {
+                    el.classList.add("hidden");
+                }
+            });
+        });
+
+        function toggleModal(show) {
+            const modal = document.getElementById('addArticleModal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
         window.addEventListener('load', function () {
             // Toggle video input
             const checkbox = document.getElementById('is_shorts');
@@ -308,6 +365,7 @@
                     },
                 });
             });
+
         });
     </script>
 

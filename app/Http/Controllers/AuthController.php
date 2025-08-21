@@ -7,8 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
-
-
 class AuthController extends Controller
 {
     public function login(Request $request)
@@ -69,7 +67,7 @@ return redirect()->intended('/dashboard');
         Auth::login($user);
 
         // Redirect ke dashboard atau halaman lain
-        return redirect('/dashboard')->with('success', 'Registrasi berhasil!');
+        return redirect('/login')->with('success', 'Registrasi berhasil!');
     }
 
     // Logout

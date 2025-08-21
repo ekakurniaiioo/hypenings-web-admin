@@ -17,6 +17,7 @@ class DashboardController extends Controller
         $totalShorts = Article::where('is_shorts', 1)->count(); // Shorts
         $totalUsers = User::count();
         $totalCategories = Category::count();
+        $users = User::all(); 
 
         // Categories with article counts (for the cards)
         $categories = Category::withCount('articles')->get();
@@ -56,6 +57,7 @@ class DashboardController extends Controller
             'totalUsers',
             'totalCategories',
             'categories',
+            'users',
             'chartLabels',
             'chartData',
             'recentActivities',

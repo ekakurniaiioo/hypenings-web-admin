@@ -18,14 +18,21 @@ class Article extends Model
         'is_topic',
         'is_featured_slider',
         'is_shorts',
+        'user_id',
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
+
     public function slider()
     {
         return $this->hasOne(Slider::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
