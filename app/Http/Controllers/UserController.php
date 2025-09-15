@@ -15,6 +15,10 @@ class UserController extends Controller
 
     public function updateRole(Request $request, User $user)
     {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->back()->with('error', 'Admin tidak bisa mengubah role user.');
+        }
+
         $request->validate([
             'role' => 'required|in:superadmin,admin,editor,user',
         ]);
@@ -27,6 +31,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->back()->with('error', 'Admin tidak bisa menghapus user.');
+        }
+
         if ($user->id === auth()->id()) {
             return redirect()->route('users.index')->with('error', 'Kamu tidak bisa menghapus akun sendiri!');
         }

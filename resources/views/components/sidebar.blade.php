@@ -19,7 +19,7 @@
 
 		<div class="px-6 mt-8 mb-2 text-xs font-semibold uppercase text-gray-500 tracking-wider">Management</div>
 		<a href="{{ route('articles.index') }}" class="group flex items-center px-6 py-3 mb-1 rounded-r-md transition-colors duration-200
-    {{ request()->routeIs('news.*')
+    {{ request()->routeIs('articles.*')
 	? 'bg-blue-600 hover:bg-blue-700 text-white border-l-4 border-blue-400 font-semibold'
 	: 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
 			<svg class="w-5 h-5 flex-shrink-0 group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2"
@@ -31,8 +31,10 @@
 		</a>
 
 		<div class="px-6 mt-8 mb-2 text-xs font-semibold uppercase text-gray-500 tracking-wider">Settings</div>
-		<a href="{{ route('settings.index') }}"
-			class="flex items-center px-6 py-3 mb-1 rounded-r-md hover:bg-gray-800 hover:text-white transition-colors duration-200">
+		<a href="{{ route('settings.index') }}" class="flex items-center px-6 py-3 mb-1 rounded-r-md transition-colors duration-200
+   {{ request()->routeIs('settings.*')
+	? 'bg-blue-600 text-white border-l-4 border-blue-400 font-semibold hover:bg-blue-700 hover:text-white'
+	: 'hover:bg-gray-800 hover:text-white' }}">
 			<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 				stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 				<path

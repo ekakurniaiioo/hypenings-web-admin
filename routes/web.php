@@ -6,15 +6,21 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\SliderMediaController;
-
+use App\Http\Controllers\ProfileController;
 
 // ==================== AUTH ====================
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+
+Route::middleware(['auth', 'can:review-articles'])->group(function () {
+    Route::get('articles/{article}/review', [ArticleController::class, 'review'])->name('articles.review');
+    Route::post('articles/{article}/update-status', [ArticleController::class, 'updateStatus'])->name('articles.updateStatus');
+});
 
 // Login & Register
 Route::get('/login', fn() => view('login'))->name('login');
@@ -52,6 +58,20 @@ Route::middleware(['auth'])->group(function () {
         }
         return 'Editor Area';
     });
+});
+
+Route::post('/notifications/read', function () {
+    App\Models\Notification::where('is_read', false)->update(['is_read' => true]);
+    return response()->json(['success' => true]);
+})->name('notifications.read');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', function () {
+        return view('profile');
+    })->name('profile.show');
+
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])
+        ->name('profile.update.avatar');
 });
 
 Route::middleware(['auth'])->group(function () {

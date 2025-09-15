@@ -6,7 +6,6 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\SliderMedia;
 use App\Models\Slider;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +24,8 @@ class ArticleController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Article::class); // cek policy dulu
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
@@ -42,6 +43,7 @@ class ArticleController extends Controller
 
         $validated['slug'] = $request->input('slug') ?? Str::slug($request->title);
 
+        // published_at
         if ($request->filled('published_at')) {
             $validated['published_at'] = \Carbon\Carbon::parse($request->published_at)
                 ->setTimeFromTimeString(now()->format('H:i:s'));
@@ -49,9 +51,8 @@ class ArticleController extends Controller
             $validated['published_at'] = now();
         }
 
-        // Subfolder logika
+        // Tentukan subfolder
         $hasSlider = $request->hasFile('slider_images');
-
         if ($request->boolean('is_shorts')) {
             $subfolder = 'shorts/';
         } elseif (($request->boolean('is_trending') || $request->boolean('is_topic') || $request->boolean('is_featured_slider')) && $hasSlider) {
@@ -73,7 +74,7 @@ class ArticleController extends Controller
             $validated['image'] = 'uploads/' . $subfolder . $imageName;
         }
 
-        // Upload video utama jika ada
+        // Upload video utama
         if ($request->hasFile('video_path')) {
             $video = $request->file('video_path');
             $videoName = time() . '_' . Str::slug(pathinfo($video->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $video->getClientOriginalExtension();
@@ -81,7 +82,8 @@ class ArticleController extends Controller
             $validated['video_path'] = 'uploads/' . $subfolder . $videoName;
         }
 
-        $validated['user_id'] = Auth::id(); // 
+        // Simpan artikel
+        $validated['user_id'] = Auth::id();
         $article = Article::create($validated);
 
         // Notifikasi
@@ -90,6 +92,7 @@ class ArticleController extends Controller
                 'title' => 'News item added',
                 'message' => Auth::user()->name . ' added news: ' . $validated['title'],
                 'created_by' => Auth::id(),
+                'is_read' => false,
             ]);
         }
 
@@ -171,20 +174,6 @@ class ArticleController extends Controller
         ));
     }
 
-    public function show($id)
-    {
-        $article = Article::findOrFail($id);
-
-        $sessionKey = 'article_viewed_' . $article->id;
-
-        if (!session()->has($sessionKey)) {
-            $article->increment('views');
-            session()->put($sessionKey, true);
-        }
-
-        return view('articles.show', compact('article'));
-    }
-
     public function edit($id)
     {
         $article = Article::with('slider.sliderMedia')->findOrFail($id);
@@ -196,6 +185,8 @@ class ArticleController extends Controller
 
     public function update(Request $request, Article $article)
     {
+        $this->authorize('update', $article);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
@@ -205,7 +196,7 @@ class ArticleController extends Controller
             'category_id' => 'required|exists:categories,id',
             'is_trending' => 'nullable|boolean',
             'is_topic' => 'nullable|boolean',
-            'is_slider' => 'nullable|boolean',
+            'is_featured_slider' => 'nullable|boolean',
             'is_shorts' => 'nullable|boolean',
             'slider_images.*' => 'nullable|mimes:jpg,jpeg,png,mp4,mov|max:20480',
             'video_path' => 'nullable|mimes:mp4,mov|max:51200',
@@ -223,10 +214,9 @@ class ArticleController extends Controller
 
         // cek subfolder
         $hasSlider = $request->hasFile('slider_images');
-
         if ($request->boolean('is_shorts')) {
             $subfolder = 'shorts/';
-        } elseif (($request->boolean('is_trending') || $request->boolean('is_topic') || $request->boolean('is_slider')) && $hasSlider) {
+        } elseif (($request->boolean('is_trending') || $request->boolean('is_topic') || $request->boolean('is_featured_slider')) && $hasSlider) {
             $subfolder = 'articleWithSlider/';
         } else {
             $subfolder = 'articleWithoutSlider/';
@@ -239,27 +229,33 @@ class ArticleController extends Controller
 
         // update image utama
         if ($request->hasFile('image')) {
-            if ($article->image && file_exists(public_path('storage/' . $article->image))) {
-                unlink(public_path('storage/' . $article->image));
-            }
             $image = $request->file('image');
             $imageName = time() . '_' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $image->getClientOriginalExtension();
             $image->move($destination, $imageName);
+
+            // hapus lama kalau ada
+            if ($article->image && file_exists(public_path('storage/' . $article->image))) {
+                unlink(public_path('storage/' . $article->image));
+            }
+
             $validated['image'] = 'uploads/' . $subfolder . $imageName;
         }
 
-        // update video
+        // update video utama
         if ($request->hasFile('video_path')) {
-            if ($article->video_path && file_exists(public_path('storage/' . $article->video_path))) {
-                unlink(public_path('storage/' . $article->video_path));
-            }
             $video = $request->file('video_path');
             $videoName = time() . '_' . Str::slug(pathinfo($video->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $video->getClientOriginalExtension();
             $video->move($destination, $videoName);
+
+            // hapus lama kalau ada
+            if ($article->video_path && file_exists(public_path('storage/' . $article->video_path))) {
+                unlink(public_path('storage/' . $article->video_path));
+            }
+
             $validated['video_path'] = 'uploads/' . $subfolder . $videoName;
         }
 
-        // update article
+        // update article utama
         $article->update($validated);
 
         // update / ganti slider media
@@ -274,7 +270,7 @@ class ArticleController extends Controller
                 $oldMedia->delete();
             }
 
-            // 🔥 Insert media baru
+            // Insert media baru
             foreach ($request->file('slider_images', []) as $index => $file) {
                 $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
                 $file->move($destination, $fileName);
@@ -290,11 +286,12 @@ class ArticleController extends Controller
         return redirect()->route('articles.index')->with('success', 'Artikel berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    public function destroy(Article $article)
     {
-        $article = Article::findOrFail($id);
-        $article->delete();
+        $this->authorize('delete', $article);
+
         $title = $article->title;
+        $article->delete();
 
         if (Auth::check()) {
             Notification::create([
@@ -305,6 +302,28 @@ class ArticleController extends Controller
         }
 
         return redirect()->route('articles.index')->with('success', 'Artikel berhasil dihapus.');
+    }
+
+    public function review(Article $article)
+    {
+        $this->authorize('review-articles'); // cek sesuai gate
+        return view('articles.review', compact('article'));
+    }
+
+    public function updateStatus(Request $request, Article $article)
+    {
+        $this->authorize('review-articles'); // cek sesuai gate
+
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+            'notes' => 'nullable|string'
+        ]);
+
+        $article->status = $request->status;
+        $article->review_notes = $request->notes ?? null;
+        $article->save();
+
+        return redirect()->route('dashboard')->with('success', 'Artikel berhasil diupdate!');
     }
 
 }

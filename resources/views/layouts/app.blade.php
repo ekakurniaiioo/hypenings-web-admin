@@ -30,7 +30,6 @@
                     </span>
                 </a>
 
-                <!-- Bisa tambahkan isi topnav lain, misal user info / tombol logout -->
                 <div>
                     @include('components.topnav')
                 </div>
@@ -46,10 +45,40 @@
     </div>
 
     <script>
-  document.getElementById('notifToggle').addEventListener('click', function () {
-    document.getElementById('notifDropdown').classList.toggle('hidden');
-  });
-</script>
+        document.getElementById("notifToggle").addEventListener("click", function () {
+            document.getElementById('notifDropdown').classList.toggle('hidden');
+            fetch("{{ route('notifications.read') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json"
+                }
+            }).then(() => {
+                let dot = this.querySelector("span.absolute");
+                if (dot) dot.remove();
+            });
+        });
+
+        const drawer = document.getElementById("drawer");
+        const overlay = document.getElementById("drawerOverlay");
+        const openBtn = document.getElementById("openDrawer");
+        const closeBtn = document.getElementById("closeDrawer");
+
+        openBtn.addEventListener("click", () => {
+            drawer.classList.remove("translate-x-full");
+            overlay.classList.remove("hidden");
+        });
+
+        closeBtn.addEventListener("click", () => {
+            drawer.classList.add("translate-x-full");
+            overlay.classList.add("hidden");
+        });
+
+        overlay.addEventListener("click", () => {
+            drawer.classList.add("translate-x-full");
+            overlay.classList.add("hidden");
+        });
+    </script>
 
 </body>
 

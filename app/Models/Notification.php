@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
     protected $fillable = [
-        'title',         // ✅ tambahkan ini
+        'title',         
         'message',
         'created_by',
+        'is_read'
     ];
 }
 

@@ -12,13 +12,16 @@
         {{-- Header --}}
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">📰 Article Management</h1>
-            <button onclick="document.getElementById('addArticleModal').classList.remove('hidden')"
-                class="bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition px-5 py-2 rounded-lg font-medium flex items-center shadow">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Add Article
-            </button>
+
+            @if(auth()->check() && auth()->user()->role !== 'user')
+                <button onclick="document.getElementById('addArticleModal').classList.remove('hidden')"
+                    class="bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition px-5 py-2 rounded-lg font-medium flex items-center shadow">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add Article
+                </button>
+            @endif
         </div>
 
         {{-- Tabel --}}
@@ -108,27 +111,38 @@
                                 </td>
                                 <td class="px-12 py-4 text-center">
                                     <div class="relative inline-block text-left">
-                                        <button type="button" onclick="toggleDropdown('dropdown-{{ $item->id }}')"
-                                            class="inline-flex justify-center items-center px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none">
-                                            ⋮
-                                        </button>
+                                        @can('update', $item)
+                                            <button type="button" onclick="toggleDropdown('dropdown-{{ $item->id }}')"
+                                                class="inline-flex justify-center items-center px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none">
+                                                ⋮
+                                            </button>
 
-                                        <div id="dropdown-{{ $item->id }}"
-                                            class="hidden absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                                            <a href="{{ route('articles.edit', $item->id) }}"
-                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                                ✏️ Edit
-                                            </a>
-                                            <form action="{{ route('articles.destroy', $item->id) }}" method="POST"
-                                                onsubmit="return confirm('Are you sure?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                                    🗑️ Delete
-                                                </button>
-                                            </form>
-                                        </div>
+                                            <div id="dropdown-{{ $item->id }}"
+                                                class="hidden absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+
+                                                {{-- Tombol Edit --}}
+                                                <a href="{{ route('articles.edit', $item->id) }}"
+                                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                                    ✏️ Edit
+                                                </a>
+
+                                                {{-- Tombol Delete --}}
+                                                <form action="{{ route('articles.destroy', $item->id) }}" method="POST"
+                                                    onsubmit="return confirm('Are you sure?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                        🗑️ Delete
+                                                    </button>
+                                                </form>
+
+                                                <a href="{{ route('articles.review', $item->id) }}"
+                                                    class="block px-4 py-2 text-sm text-green-700 hover:bg-green-100">
+                                                    📝 Review Article
+                                                </a>
+                                            </div>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
@@ -233,12 +247,13 @@
                             <label for="video_path" class="block text-sm font-medium text-gray-700 mb-1">
                                 Upload Video (Shorts)
                             </label>
-                            <input type="file" name="video_path" id="video_path" accept="video/*" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg shadow-sm cursor-pointer
-                                                               file:mr-4 file:py-2 file:px-4
-                                                               file:rounded-lg file:border-0
-                                                               file:text-sm file:font-semibold
-                                                               file:bg-yellow-400 file:text-white
-                                                               hover:file:bg-yellow-500 transition">
+                            <input type="file" name="video_path" id="video_path" accept="video/*"
+                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg shadow-sm cursor-pointer
+                                                                                       file:mr-4 file:py-2 file:px-4
+                                                                                       file:rounded-lg file:border-0
+                                                                                       file:text-sm file:font-semibold
+                                                                                       file:bg-yellow-400 file:text-white
+                                                                                       hover:file:bg-yellow-500 transition">
                         </div>
 
                         <!-- Slider Images/Videos -->
@@ -247,8 +262,8 @@
                                 Images / Videos</label>
                             <input type="file" id="slider_images" name="slider_images[]" multiple accept="image/*,video/*"
                                 class="block w-full text-sm border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
-                                                                  file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-white
-                                                                  hover:file:bg-yellow-500 transition">
+                                                                                          file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-white
+                                                                                          hover:file:bg-yellow-500 transition">
                         </div>
 
                     </div>
@@ -295,7 +310,6 @@
         }
 
         window.addEventListener('load', function () {
-            // Toggle video input
             const checkbox = document.getElementById('is_shorts');
             const videoInput = document.getElementById('videoInput');
 
@@ -329,28 +343,18 @@
 
             document.getElementById('slider_images').addEventListener('change', function (event) {
                 const input = event.target;
-                const files = Array.from(input.files); // ini array File sesuai urutan pemilihan
+                const files = Array.from(input.files);
 
-                // Tampilkan urutan nama file (opsional untuk debugging)
                 console.log("Urutan file:", files.map(f => f.name));
 
-                // Kalau kamu pakai AJAX (misalnya pakai fetch):
                 const formData = new FormData();
 
                 files.forEach((file, index) => {
-                    formData.append('slider_images[]', file); // urutan dipertahankan
+                    formData.append('slider_images[]', file);
                 });
 
-                // Kirim via fetch (contoh)
-                // fetch('/upload-slider', {
-                //     method: 'POST',
-                //     body: formData
-                // });
-
-                // Atau biarkan form biasa submit, lalu kamu urutkan berdasarkan array input.files
             });
 
-            // Initialize Swiper for each .mySwiper
             const swipers = document.querySelectorAll('.mySwiper');
             swipers.forEach(function (el) {
                 new Swiper(el, {

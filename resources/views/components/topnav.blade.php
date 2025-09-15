@@ -1,16 +1,7 @@
 <header class="bg-white shadow-md border-b border-gray-200">
   <div class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-    {{-- Left: Sidebar Toggle + Search --}}
+    
     <div class="flex items-center space-x-4">
-      {{-- Sidebar Toggle (mobile) --}}
-      <button id="sidebarToggle" aria-label="Toggle sidebar"
-        class="text-gray-600 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md lg:hidden transition">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
       {{-- Search Bar --}}
       <form action="{{ route('articles.index') }}" method="GET" class="relative">
         <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -27,17 +18,28 @@
 
     {{-- Right: Notification + User Menu --}}
     <div class="flex items-center space-x-6">
+
       @php
-    use App\Models\Notification;
-    $notifications = Notification::latest()->take(5)->get();
-  @endphp
+      use App\Models\Notification;
+
+      $notifications = Notification::latest()->take(8)->get();
+      $hasUnread = Notification::where('is_read', false)->exists();
+      @endphp
+
       {{-- Notification Bell --}}
       <div class="relative">
-        <button id="notifToggle"
-          class="p-2 rounded-full text-gray-500 hover:text-indigo-600 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition relative">
+        <button id="notifToggle" class="relative p-2 rounded-full text-gray-500 
+         hover:text-indigo-600 hover:bg-indigo-100 
+         focus:outline-none focus:ring-2 focus:ring-indigo-400 
+         transition-all duration-200 ease-out 
+         hover:scale-110 active:scale-95">
           <span class="sr-only">Notifications</span>
-          <span
-            class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-white"></span>
+
+          @if($hasUnread)
+        <span
+        class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-white"></span>
+      @endif
+
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" viewBox="0 0 24 24">
             <path
@@ -67,12 +69,74 @@
 
       {{-- User Menu (Avatar) --}}
       <div>
-        <a href="/login" class="block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full">
-          <img src="{{ asset('image/hype.png') }}" alt="User Avatar"
-            class="w-9 h-9 rounded-full object-cover border border-gray-300 hover:ring-2 hover:ring-indigo-500 transition" />
-        </a>
+        <button id="openDrawer" class="block focus:outline-none rounded-full">
+          <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('image/user.jpg') }}"
+            alt="avatar"
+            class="w-10 h-10 rounded-full object-cover border border-gray-300 hover:ring-2 hover:ring-indigo-500 transition" />
+        </button>
+      </div>
+
+      <!-- Overlay -->
+      <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40"></div>
+
+      <!-- Drawer -->
+      <div id="drawer"
+        class="fixed top-0 right-0 w-80 h-full bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 rounded-l-2xl">
+
+        <div class="flex flex-col h-full">
+          <!-- Header -->
+          <div class="flex justify-between items-center px-6 py-4 border-b">
+            <h2 class="text-xl font-bold text-gray-800">Profile</h2>
+            <button id="closeDrawer"
+              class="text-gray-400 hover:text-gray-700 transition text-2xl font-light">&times;</button>
+          </div>
+
+          <!-- Body -->
+          <div class="flex-1 overflow-y-auto p-6">
+            <!-- Foto Profil -->
+            <div class="flex flex-col items-center mb-6">
+              <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('image/user.jpg') }}"
+                alt="Avatar" class="w-28 h-28 rounded-full border-4 border-gray-200 shadow-md object-cover mb-3">
+
+              <!-- Tombol ubah foto -->
+              <form action="{{ route('profile.update.avatar') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <label
+                  class="cursor-pointer px-4 py-1.5 bg-blue-500 text-white text-sm rounded-lg shadow hover:bg-blue-600 transition">
+                  Change Photo
+                  <input type="file" name="avatar" class="hidden" onchange="this.form.submit()">
+                </label>
+              </form>
+            </div>
+
+            <!-- Nama & Email -->
+            <div class="space-y-3 text-gray-700 mt-12 w-full">
+              <div>
+                <p class="text-sm font-medium text-gray-500">Nama</p>
+                <p class="text-base border-b font-semibold">{{ Auth::user()->name }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-500">Role</p>
+                <p class="text-base border-b font-semibold">{{ Auth::user()->role }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-500">Email</p>
+                <p class="text-base border-b font-semibold">{{ Auth::user()->email }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-6 py-4 border-t flex justify-end">
+            <form method="POST" action="{{ route('logout') }}">
+              @csrf
+              <button type="submit"
+                class="px-4 py-2 text-sm font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </header>
-
