@@ -23,7 +23,7 @@
 
             <!-- Top Navigation -->
             <div class="flex items-center justify-between bg-white px-6 py-4 shadow-md">
-                <a href="/" class="flex items-center gap-2">
+                <a href="/dashboard" class="flex items-center gap-2">
                     <img src="{{ asset('image/hype.png') }}" alt="Logo" class="h-10">
                     <span class="text-xl font-semibold text-gray-800">
                         Welcome, {{ Auth::user()->name ?? 'Guest' }}

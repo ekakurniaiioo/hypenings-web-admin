@@ -127,14 +127,43 @@
                                                 </a>
 
                                                 {{-- Tombol Delete --}}
-                                                <form action="{{ route('articles.destroy', $item->id) }}" method="POST"
-                                                    onsubmit="return confirm('Are you sure?')">
+                                                <form id="delete-form-{{ $item->id }}"
+                                                    action="{{ route('articles.destroy', $item->id) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit"
-                                                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+
+                                                    {{-- Tombol ini sekarang hanya untuk memicu modal, bukan submit form --}}
+                                                    <button type="button"
+                                                        class="delete-trigger-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                                        data-form-id="delete-form-{{ $item->id }}">
                                                         🗑️ Delete
                                                     </button>
+                                                    
+                                                    <div id="deleteModal"
+                                                        class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+                                                        <div
+                                                            class="bg-white dark:bg-neutral-900 rounded-xl shadow-lg max-w-sm w-full p-6 text-center">
+                                                            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                                                                Confirm Delete
+                                                            </h3>
+                                                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+                                                                Are you sure you want to delete this item?
+                                                            </p>
+                                                            <div class="flex justify-center gap-4">
+                                                                {{-- Tombol untuk membatalkan --}}
+                                                                <button id="cancelBtn" type="button"
+                                                                    class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded hover:bg-gray-400 dark:hover:bg-gray-600">
+                                                                    Cancel
+                                                                </button>
+
+                                                                {{-- Tombol ini akan men-submit form yang benar via JavaScript --}}
+                                                                <button id="confirmDeleteBtn" type="button"
+                                                                    class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </form>
 
                                                 <a href="{{ route('articles.review', $item->id) }}"
@@ -249,11 +278,11 @@
                             </label>
                             <input type="file" name="video_path" id="video_path" accept="video/*"
                                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg shadow-sm cursor-pointer
-                                                                                       file:mr-4 file:py-2 file:px-4
-                                                                                       file:rounded-lg file:border-0
-                                                                                       file:text-sm file:font-semibold
-                                                                                       file:bg-yellow-400 file:text-white
-                                                                                       hover:file:bg-yellow-500 transition">
+                                                                                                           file:mr-4 file:py-2 file:px-4
+                                                                                                           file:rounded-lg file:border-0
+                                                                                                           file:text-sm file:font-semibold
+                                                                                                           file:bg-yellow-400 file:text-white
+                                                                                                           hover:file:bg-yellow-500 transition">
                         </div>
 
                         <!-- Slider Images/Videos -->
@@ -262,8 +291,8 @@
                                 Images / Videos</label>
                             <input type="file" id="slider_images" name="slider_images[]" multiple accept="image/*,video/*"
                                 class="block w-full text-sm border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
-                                                                                          file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-white
-                                                                                          hover:file:bg-yellow-500 transition">
+                                                                                                              file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-white
+                                                                                                              hover:file:bg-yellow-500 transition">
                         </div>
 
                     </div>
@@ -287,6 +316,56 @@
     </style>
 
     <script>
+        // Ambil elemen-elemen modal
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+        // Ambil SEMUA tombol pemicu delete
+        const deleteTriggerButtons = document.querySelectorAll('.delete-trigger-btn');
+
+        // Variabel untuk menyimpan form mana yang akan di-submit
+        let formToSubmit = null;
+
+        // Tambahkan event listener untuk setiap tombol pemicu
+        deleteTriggerButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                // Ambil ID form dari atribut data
+                const formId = event.currentTarget.getAttribute('data-form-id');
+                formToSubmit = document.getElementById(formId);
+
+                // Tampilkan modal
+                deleteModal.classList.remove('hidden');
+                deleteModal.classList.add('flex');
+            });
+        });
+
+        // Fungsi untuk menyembunyikan modal
+        function hideModal() {
+            deleteModal.classList.add('hidden');
+            deleteModal.classList.remove('flex');
+            formToSubmit = null; // Reset form
+        }
+
+        // Ketika tombol "Cancel" di modal diklik
+        cancelBtn.addEventListener('click', () => {
+            hideModal();
+        });
+
+        // Ketika tombol "Delete" di modal diklik
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (formToSubmit) {
+                formToSubmit.submit(); // Submit form yang sudah disimpan
+            }
+        });
+
+        // (Opsional) Tutup modal jika klik di luar area modal
+        window.addEventListener('click', (event) => {
+            if (event.target === deleteModal) {
+                hideModal();
+            }
+        });
+
         function toggleDropdown(id) {
             const dropdown = document.getElementById(id);
             dropdown.classList.toggle("hidden");
@@ -299,7 +378,7 @@
                 }
             });
         });
-
+        s
         function toggleModal(show) {
             const modal = document.getElementById('addArticleModal');
             if (show) {
