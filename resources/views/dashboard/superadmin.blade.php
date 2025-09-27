@@ -16,27 +16,6 @@
             <p class="text-gray-500 mt-2">Manage everything about Hypenings in one place.</p>
         </div>
 
-        {{-- Management Quick Links --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            <a href="/users" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition block">
-                <p class="text-sm text-gray-500">Management</p>
-                <h2 class="text-xl font-bold text-purple-600">User Management</h2>
-                <p class="text-xs text-gray-400 mt-1">Admins & Superadmins</p>
-            </a>
-
-            <a href="/articles" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition block">
-                <p class="text-sm text-gray-500">Management</p>
-                <h2 class="text-xl font-bold text-blue-600">Article Management</h2>
-                <p class="text-xs text-gray-400 mt-1">Admins & Superadmins</p>
-            </a>
-
-            <a href="#review-article" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition block">
-                <p class="text-sm text-gray-500">Review</p>
-                <h2 class="text-xl font-bold text-yellow-600">Pending Reviews</h2>
-                <p class="text-xs text-gray-400 mt-1">Editors, Admins & Superadmins</p>
-            </a>
-        </div>
-
         {{-- Overview Stats --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <a href="{{ route('articles.index', ['is_shorts' => 0]) }}"
@@ -144,72 +123,6 @@
                 </table>
             </div>
         </div>
-
-        {{-- Article Status Overview --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <a href="{{ route('articles.index', ['status' => 'pending']) }}"
-                class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition block">
-                <p class="text-gray-500">Pending Articles</p>
-                <h2 class="text-3xl font-bold text-yellow-600">{{ $pendingArticles }}</h2>
-                <p class="text-xs text-gray-400 mt-1">Awaiting review</p>
-            </a>
-
-            <a href="{{ route('articles.index', ['status' => 'approved']) }}"
-                class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition block">
-                <p class="text-gray-500">Approved Articles</p>
-                <h2 class="text-3xl font-bold text-green-600">{{ $approvedArticles }}</h2>
-                <p class="text-xs text-gray-400 mt-1">Published</p>
-            </a>
-
-            <a href="{{ route('articles.index', ['status' => 'rejected']) }}"
-                class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition block">
-                <p class="text-gray-500">Rejected Articles</p>
-                <h2 class="text-3xl font-bold text-red-600">{{ $rejectedArticles }}</h2>
-                <p class="text-xs text-gray-400 mt-1">Need revision</p>
-            </a>
-
-            <a href="{{ route('articles.index') }}"
-                class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition block">
-                <p class="text-gray-500">Total Articles</p>
-                <h2 class="text-3xl font-bold text-blue-600">{{ $totalArticles }}</h2>
-                <p class="text-xs text-gray-400 mt-1">All articles</p>
-            </a>
-        </div>
-
-        {{-- Pending Review Section --}}
-        <div id="review-article" class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-lg font-semibold mb-4 py-4 border-b text-gray-700">Pending Articles for Review</h2>
-            <table class="min-w-full border rounded-lg overflow-hidden">
-                <thead>
-                    <tr class="bg-gray-50">
-                        <th class="px-4 py-2 border text-left">Title</th>
-                        <th class="px-4 py-2 border text-center">Author</th>
-                        <th class="px-4 py-2 border text-center">Date</th>
-                        <th class="px-4 py-2 border text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($pendingList as $article)
-                        <tr class="hover:bg-gray-100">
-                            <td class="px-4 py-2 border">{{ $article->title }}</td>
-                            <td class="px-4 py-2 border text-center">{{ $article->user->name }}</td>
-                            <td class="px-4 py-2 border text-center">{{ $article->created_at->format('d M Y') }}</td>
-                            <td class="px-4 py-2 border text-center">
-                                <a href="{{ route('articles.review', $article->id) }}"
-                                    class="text-blue-500 font-medium hover:underline">
-                                    Review
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-4 py-2 border text-center text-gray-500">No pending articles.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
     </div>
 
     {{-- Chart.js --}}

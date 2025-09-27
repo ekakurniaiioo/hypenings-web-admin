@@ -54,8 +54,8 @@
     <div>
       <label for="published_at" class="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
       <input type="datetime-local" name="published_at" id="published_at"
-      value="{{ old('published_at', \Carbon\Carbon::parse($article->published_at)->format('Y-m-d')) }}" required
-      class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+      value="{{ old('published_at', $article->published_at ? \Carbon\Carbon::parse($article->published_at)->format('Y-m-d\TH:i') : '') }}"
+      required class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
     </div>
 
     {{-- FLAGS --}}
@@ -121,8 +121,8 @@
       <video src="{{ asset('storage/' . $media->file_path) }}" controls
       class="w-full h-full object-cover rounded-lg"></video>
       @else
-      <img src="{{ asset('storage/' . $media->file_path) }}"
-      class="w-full h-full object-cover rounded-lg" alt="Slider Media">
+      <img src="{{ asset('storage/' . $media->file_path) }}" class="w-full h-full object-cover rounded-lg"
+      alt="Slider Media">
       @endif
       </div>
     @endforeach

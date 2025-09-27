@@ -62,68 +62,6 @@
                     {!! $article->content !!}
                 </div>
 
-                {{-- Status Info --}}
-                <div class="flex flex-col items-center gap-3 mb-10">
-                    <p class="text-gray-400">Status</p>
-                    <span
-                        class="px-4 py-1.5 rounded-full text-white font-semibold text-sm 
-                                            {{ $article->status == 'approved' ? 'bg-green-500' : ($article->status == 'rejected' ? 'bg-red-500' : 'bg-yellow-500') }}">
-                        {{ ucfirst($article->status) }}
-                    </span>
-                    @if($article->review_notes)
-                        <span class="text-gray-500 italic text-center">
-                            Catatan: {{ $article->review_notes }}
-                        </span>
-                    @endif
-                </div>
-
-                {{-- Form Review --}}
-                <form action="{{ route('articles.updateStatus', $article->id) }}" method="POST"
-                    class="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-2xl shadow-inner border border-gray-200">
-                    @csrf
-
-                    {{-- Header Form --}}
-                    <div class="flex items-center mb-6">
-                        <div class="p-3 bg-indigo-100 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-3-3v6m-7 8h14a2 2 0 002-2V6a2 2 0 00-2-2h-4l-2-2h-4l-2 2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h2 class="ml-3 text-xl font-bold text-gray-800">Update Status</h2>
-                    </div>
-
-                    {{-- Status --}}
-                    <div class="mb-5">
-                        <label for="status" class="block text-gray-700 font-semibold mb-2">Status</label>
-                        <select name="status" id="status"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition">
-                            <option value="pending" @if($article->status == 'pending') selected @endif>Pending</option>
-                            <option value="approved" @if($article->status == 'approved') selected @endif>Approved</option>
-                            <option value="rejected" @if($article->status == 'rejected') selected @endif>Rejected</option>
-                        </select>
-                    </div>
-
-                    {{-- Notes --}}
-                    <div class="mb-6">
-                        <label for="notes" class="block text-gray-700 font-semibold mb-2">Catatan / Feedback</label>
-                        <textarea name="notes" id="notes" rows="4"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition">{{ $article->review_notes ?? '' }}</textarea>
-                    </div>
-
-                    {{-- Actions --}}
-                    <div class="flex justify-end gap-3">
-                        <a href="{{ url()->previous() }}"
-                            class="px-6 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 transition">
-                            Kembali
-                        </a>
-                        <button type="submit"
-                            class="px-6 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-md transition">
-                            Simpan Review
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

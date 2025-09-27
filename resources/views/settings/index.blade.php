@@ -14,8 +14,6 @@
                     data-tab="profile">Profile</a>
                 <a href="#security" class="tab-link px-3 py-2 font-medium text-gray-600 hover:text-indigo-600"
                     data-tab="security">Security</a>
-                <a href="#appearance" class="tab-link px-3 py-2 font-medium text-gray-600 hover:text-indigo-600"
-                    data-tab="appearance">Appearance</a>
             </nav>
         </div>
 
@@ -129,28 +127,6 @@
             </form>
         </div>
 
-        {{-- Appearance Settings --}}
-        <div id="appearance" class="tab-content hidden">
-            <form method="POST" action="{{ route('settings.appearance.update') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="mb-4">
-                    <label for="logo" class="block text-gray-700 font-medium mb-1">Upload Logo</label>
-                    <input type="file" name="logo" id="logo"
-                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                    @error('logo') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div class="mb-4">
-                    <label for="theme_color" class="block text-gray-700 font-medium mb-1">Theme Color</label>
-                    <input type="color" name="theme_color" id="theme_color"
-                        value="{{ old('theme_color', session('theme_color', '#4F46E5')) }}"
-                        class="w-20 h-10 p-0 border-0 cursor-pointer" />
-                </div>
-
-                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Save
-                    Appearance</button>
-            </form>
-        </div>
     </div>
 
     <script>

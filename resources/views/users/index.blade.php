@@ -19,7 +19,7 @@
             <table class="min-w-full bg-white shadow-lg rounded-xl overflow-hidden">
                 <thead>
                     <tr class="bg-gray-200 text-gray-700 text-sm uppercase tracking-wide">
-                        <th class="px-6 py-3 text-left">Id</th>
+                        <th class="px-6 py-3 text-left">No</th>
                         <th class="px-6 py-3 text-left">Avatar</th>
                         <th class="px-6 py-3 text-left">Name</th>
                         <th class="px-6 py-3 text-left">Email</th>

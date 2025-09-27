@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 
 // ==================== AUTH ====================
 Route::get('/', function () {
@@ -27,6 +28,15 @@ Route::get('/login', fn() => view('login'))->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::prefix('categories')->name('categories.')->group(function () {
+    Route::get('/', [CategoryController::class, 'index'])->name('index');
+    Route::get('/create', [CategoryController::class, 'create'])->name('create'); 
+    Route::post('/', [CategoryController::class, 'store'])->name('store'); 
+    Route::get('/{category}/edit', [CategoryController::class, 'edit'])->name('edit'); 
+    Route::put('/{category}', [CategoryController::class, 'update'])->name('update'); 
+    Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy'); 
+});
 
 // ==================== PROTECTED ROUTES ====================
 Route::middleware('auth')->group(function () {
