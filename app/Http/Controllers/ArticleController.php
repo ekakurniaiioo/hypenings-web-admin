@@ -163,14 +163,15 @@ class ArticleController extends Controller
             });
         }
 
-        $articles = $articlesQuery
-            ->orderBy('published_at', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(150);
+        $perPage = $request->input('perPage', 10); // default 10
+
+        $articles = Article::with(['category', 'user', 'slider.slidermedia'])
+            ->paginate($perPage);
 
         return view('article', compact(
             'articles',
             'categories',
+            'perPage',
         ));
     }
 

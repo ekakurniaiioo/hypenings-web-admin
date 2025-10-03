@@ -1,7 +1,7 @@
 <div class="bg-gray-900 text-gray-300 w-64 min-h-screen flex-shrink-0 flex flex-col">
 	<!-- Header -->
-	<div class="p-6 border-b border-gray-700">
-		<h1 class="text-3xl font-extrabold text-white tracking-wide">Admin Panel</h1>
+	<div class="p-[36px] border-b border-gray-700">
+		<h1 class="text-3xl font-extrabold text-white text-center tracking-wide">Admin Panel</h1>
 	</div>
 
 	<!-- Navigation -->

@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
-<body class="bg-grey-400 font-sans">
+<body class="font-sans">
     <div class="flex h-screen">
 
         <!-- Sidebar -->
@@ -22,13 +22,16 @@
         <div class="flex-1 flex flex-col overflow-hidden">
 
             <!-- Top Navigation -->
-            <div class="flex items-center justify-between bg-white px-6 py-4 shadow-md">
-                <a href="/dashboard" class="flex items-center gap-2">
-                    <img src="{{ asset('image/hype.png') }}" alt="Logo" class="h-10">
-                    <span class="text-xl font-semibold text-gray-800">
-                        Welcome, {{ Auth::user()->name ?? 'Guest' }}
-                    </span>
-                </a>
+            <div class="flex items-center justify-between bg-white px-6 py-2 shadow-md border-b border-gray-300">
+                <div
+                    class="relative bg-white/70 backdrop-blur-md border hover:border-yellow-300 rounded-2xl shadow-lg shadow-black/20 p-4 mx-4 my-4 hover:shadow-xl hover:shadow-black/30 transition-transform hover:-translate-y-1">
+                    <a href="/dashboard" class="flex items-center gap-3">
+                        <img src="{{ asset('image/hype-id.png') }}" alt="Logo" class="h-16 bg-black rounded-lg shadow-md">
+                        <span class="text-xl font-semibold text-black drop-shadow-md">
+                            Welcome, {{ Auth::user()->name ?? 'Guest' }}
+                        </span>
+                    </a>
+                </div>
 
                 <div>
                     @include('components.topnav')
