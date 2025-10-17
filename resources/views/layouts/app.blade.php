@@ -26,7 +26,8 @@
                 <div
                     class="relative bg-white/70 backdrop-blur-md border hover:border-yellow-300 rounded-2xl shadow-lg shadow-black/20 p-4 mx-4 my-4 hover:shadow-xl hover:shadow-black/30 transition-transform hover:-translate-y-1">
                     <a href="/dashboard" class="flex items-center gap-3">
-                        <img src="{{ asset('image/hype-id.png') }}" alt="Logo" class="h-16 bg-black rounded-lg shadow-md">
+                        <img src="{{ asset('image/hype-id.png') }}" alt="Logo"
+                            class="h-16 bg-black rounded-lg shadow-md">
                         <span class="text-xl font-semibold text-black drop-shadow-md">
                             Welcome, {{ Auth::user()->name ?? 'Guest' }}
                         </span>

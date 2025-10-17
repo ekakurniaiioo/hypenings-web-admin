@@ -77,7 +77,7 @@
       </div>
 
       <!-- Overlay -->
-      <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40"></div>
+      <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-70 hidden z-30"></div>
 
       <!-- Drawer -->
       <div id="drawer"

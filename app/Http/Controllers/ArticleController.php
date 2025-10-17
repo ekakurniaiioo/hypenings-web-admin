@@ -96,7 +96,7 @@ class ArticleController extends Controller
             ]);
         }
 
-        // Simpan slider jika ada
+        // Simpan slider 
         if ($hasSlider) {
             $slider = Slider::create(['article_id' => $article->id]);
 
@@ -143,9 +143,8 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         $categories = Category::all();
-        $articlesQuery = Article::with(['user', 'slider.media']);
 
-        $articlesQuery = Article::query();
+        $articlesQuery = Article::with(['category', 'user', 'slider.slidermedia']);
 
         if ($request->filled('category')) {
             $articlesQuery->where('category_id', $request->category);
@@ -163,16 +162,12 @@ class ArticleController extends Controller
             });
         }
 
-        $perPage = $request->input('perPage', 10); // default 10
+        $articlesQuery = $articlesQuery->latest('published_at');
 
-        $articles = Article::with(['category', 'user', 'slider.slidermedia'])
-            ->paginate($perPage);
+        $perPage = $request->input('perPage', 10);
+        $articles = $articlesQuery->paginate($perPage);
 
-        return view('article', compact(
-            'articles',
-            'categories',
-            'perPage',
-        ));
+        return view('article', compact('articles', 'categories', 'perPage'));
     }
 
     public function edit($id)

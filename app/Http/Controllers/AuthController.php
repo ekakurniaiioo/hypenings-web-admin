@@ -11,66 +11,51 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // Validasi form
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // Cek user berdasarkan email
         $user = User::where('email', $request->email)->first();
 
-        // Jika user tidak ditemukan atau password salah
         if (!$user || !Hash::check($request->password, $user->password)) {
             return back()->withErrors([
                 'email' => 'Email atau password salah.',
             ])->withInput();
         }
 
-        // Berhasil login
-session()->flash('success', 'Welcome To Admin.');
+        session()->flash('success', 'Welcome To Admin.');
 
+        Auth::login($user);
 
-
-
-
-// Login user
-Auth::login($user);
-
-return redirect()->intended('/dashboard');
-        // Redirect ke dashboard
+        return redirect()->intended('/dashboard');
     }
-    // Menampilkan form register
+
     public function showRegister()
     {
         return view('register');
     }
 
-    // Menyimpan data user ke database
     public function register(Request $request)
     {
-        // Validasi form
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|confirmed|min:6',
         ]);
 
-        // Simpan ke database
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'superadmin',
         ]);
 
-        // Login otomatis setelah register
         Auth::login($user);
 
-        // Redirect ke dashboard atau halaman lain
         return redirect('/login')->with('success', 'Registrasi berhasil!');
     }
 
-    // Logout
     public function logout(Request $request)
     {
         Auth::logout();
@@ -78,6 +63,5 @@ return redirect()->intended('/dashboard');
         $request->session()->regenerateToken();
         return redirect('/login');
     }
-
 
 }
